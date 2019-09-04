@@ -34,8 +34,16 @@ module Selection
     rows_to_array(rows)
   end
 
-  def find_each
-    
+  def find_each(batch_size, batch_start)
+    rows = connection.execute <<-SQL
+      SELECT #{columns.join ","} FROM #{table}
+      LIMIT #{batch_size}
+      OFFSET #{batch_start};
+    SQL
+
+    rows_to_array(rows)
+
+    yield
   end
 
   def take(num=1)
@@ -120,7 +128,7 @@ module Selection
 
   def method_missing(m, *args)
     if m.to_s == 'find_by_name'
-      puts "method is actually find_by"
+      find_by(:name, *args)
     end
   end
 end
