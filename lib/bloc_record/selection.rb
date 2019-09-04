@@ -2,10 +2,10 @@ require 'sqlite3'
 
 module Selection
   def find(*ids)
-
     if ids.length == 1
       find_one(ids.first)
     else
+      validate_ids(*ids)
       rows = connection.execute <<-SQL
         SELECT #{columns.join ","} FROM #{table}
         WHERE id IN (#{ids.join(",")});
@@ -16,6 +16,7 @@ module Selection
   end
 
   def find_one(id)
+    validate_id(id)
     row = connection.get_first_row <<-SQL
       SELECT #{columns.join ","} FROM #{table}
       WHERE id = #{id}
@@ -93,5 +94,23 @@ module Selection
 
   def rows_to_array(rows)
     rows.map { |row| new(Hash[columns.zip(row)]) }
+  end
+
+  def validate_ids(*ids)
+    if ids.all? { |id| id =~ /^[\d]{1,3}$/ }
+      ids
+    else
+      puts "invalid id"
+      return
+    end
+  end
+
+  def validate_id(id)
+    if id =~ /^[\d]{1,3}$/
+      id
+    else
+      puts "invalid id"
+      return
+    end
   end
 end
