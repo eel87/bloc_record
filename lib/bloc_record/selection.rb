@@ -34,6 +34,10 @@ module Selection
     rows_to_array(rows)
   end
 
+  def find_each
+    
+  end
+
   def take(num=1)
     if num > 1
       rows = connection.execute <<-SQL
@@ -111,6 +115,12 @@ module Selection
     else
       puts "invalid id"
       return
+    end
+  end
+
+  def method_missing(m, *args)
+    if m.to_s == 'find_by_name'
+      puts "method is actually find_by"
     end
   end
 end
