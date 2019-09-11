@@ -34,7 +34,7 @@ module Selection
     rows_to_array(rows)
   end
 
-  def find_each(batch_size, batch_start)
+  def find_each(batch_start, batch_size)
     rows = connection.execute <<-SQL
       SELECT #{columns.join ","} FROM #{table}
       LIMIT #{batch_size}
@@ -42,6 +42,18 @@ module Selection
     SQL
 
     rows_to_array(rows)
+
+    yield
+  end
+
+  def find_in_batches(batch_start, batch_size)
+    batch = connection.execute <<-SQL
+      SELECT #{columns.join ","} FROM #{table}
+      LIMIT #{batch_size}
+      OFFSET #{batch_start}
+    SQL
+
+    rows_to_array(batch)
 
     yield
   end
@@ -127,8 +139,8 @@ module Selection
   end
 
   def method_missing(m, *args)
-    if m.to_s == 'find_by_name'
-      find_by(:name, *args)
+    if m.to_s[0..7] == 'find_by_'
+      find_by(:(m.to_s[8..-1]), *args)
     end
   end
 end
