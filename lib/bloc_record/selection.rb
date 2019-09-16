@@ -107,12 +107,39 @@ module Selection
     rows_to_array(rows)
   end
 
-  def order(order)
-    order = order.to_S
+  def order(*args)
+    if args.count > 1
+      order = args.join(",")
+    else
+      order = args.first.to_s
+    end
+
     rows = connection.execute <<- SQL
       SELECT * FROM #{table}
       ORDER BY #{order};
     SQL
+    rows_to_array(rows)
+  end
+
+  def join(*arg)
+    if args.count > 1
+      joins = args.map { |arg| "INNER JOIN #{arg}.#{table}.id = #{table}.id"}.join(" ")
+      rows = connection.execute <<-SQL
+        SELECT * FROM #{table} #{joins}
+      SQL
+    else
+      case args.first
+      when String
+        rows = connection.execute <<-SQL
+          SELECT * FROM #{table} #{BlocRecord::Utility.sql_strings(args.first)};
+        SQL
+      when Symbol
+        rows = connection.execute <<-SQL
+          SELECT * FROM #{table}
+          INNER JOIN #{args.first} ON #{args.first}.#{table}_id = #{table}.id
+        SQL
+      end
+    end
     rows_to_array(rows)
   end
 
