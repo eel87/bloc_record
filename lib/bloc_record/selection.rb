@@ -114,10 +114,18 @@ module Selection
       order = args.first.to_s
     end
 
-    rows = connection.execute <<- SQL
-      SELECT * FROM #{table}
-      ORDER BY #{order};
-    SQL
+    if order == /(asc|ASC)/
+      rows = connection.execute <<- SQL
+        SELECT * FROM #{table}
+        ORDER BY #{order} ASC;
+      SQL
+    elsif order == /(desc|DESC)/
+      rows = connection.execute <<- SQL
+        SELECT * FROM #{table}
+        ORDER BY #{order} DESC;
+      SQL
+    end
+
     rows_to_array(rows)
   end
 
