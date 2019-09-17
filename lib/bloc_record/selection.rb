@@ -129,7 +129,7 @@ module Selection
     rows_to_array(rows)
   end
 
-  def join(*arg)
+  def join(*args)
     if args.count > 1
       joins = args.map { |arg| "INNER JOIN #{arg}.#{table}.id = #{table}.id"}.join(" ")
       rows = connection.execute <<-SQL
