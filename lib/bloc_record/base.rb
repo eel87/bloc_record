@@ -4,13 +4,15 @@ require 'bloc_record/persistence'
 require 'bloc_record/selection'
 require 'bloc_record/connection'
 require 'bloc_record/collection'
+require 'bloc_record/assocations'
 
 module BlocRecord 
   class Base
     include Persistence 
     extend Selection
     extend Schema 
-    extend Connection 
+    extend Connection
+    extend Assocations
   
     def initialize(options={})
       options = BlocRecord::Utility.convert_keys(options)
