@@ -76,5 +76,12 @@ module Persistence
 
       true
     end
-  end
+
+    def method_missing(m, *args)
+      if m.to_s[0..6] == 'update_'
+        update(:(m.to_s[7..-1]), *args)
+      end
+    end
+  
+    end
 end
